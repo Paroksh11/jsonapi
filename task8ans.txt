@@ -1,0 +1,297 @@
+1)SELECT *
+FROM nurse
+WHERE registered='false';	
+2)SELECT name AS "Name",
+       POSITION AS "Position"
+FROM nurse
+WHERE POSITION='Head Nurse';
+3)SELECT name AS "Name",
+       POSITION AS "Position"
+FROM nurse
+WHERE POSITION='Head Nurse';
+4)SELECT count(DISTINCT patient) AS "No. of patients taken at least one appointment"
+FROM appointment;
+5)SELECT blockfloor AS "Floor",
+       blockcode AS "Block"
+FROM room
+WHERE roomnumber=212;
+6)SELECT blockfloor AS "Floor",
+       blockcode AS "Block"
+FROM room
+WHERE roomnumber=212;
+
+7)SELECT count(*) "Number of unavailable rooms"
+FROM room
+WHERE unavailable='true';
+
+8)SELECT p.name AS "Physician",
+       d.name AS "Department"
+FROM physician p,
+     department d,
+     affiliated_with a
+WHERE p.employeeid=a.physician
+  AND a.department=d.departmentid;
+
+9)SELECT p.name AS "Physician",
+c.name AS "Treatment"
+FROM physician p,
+     PROCEDURE c,
+trained_in t
+WHERE t.physician=p.employeeid
+  AND t.treatment=c.code;
+
+10)SELECT p.name AS "Physician",
+       p.position,
+       d.name AS "Department"
+FROM physician p
+JOIN affiliated_with a ON a.physician=p.employeeid
+JOIN department d ON a.department=d.departmentid
+WHERE primaryaffiliation='false';
+
+11)SELECT p.name AS "Physician",
+       p.position "Designation"
+FROM physician p
+LEFT JOIN trained_in t ON p.employeeid=t.physician
+WHERE t.treatment IS NULL
+ORDER BY employeeid;
+
+12)SELECT t.name AS "Patient",
+       t.address AS "Address",
+       p.name AS "Physician"
+FROM patient t
+JOIN physician p ON t.pcp=p.employeeid;
+
+13)SELECT p.name "Patient",
+       count(t.patient) "Appointment for No. of Physicians"
+FROM appointment t
+JOIN patient p ON t.patient=p.ssn
+GROUP BY p.name
+HAVING count(t.patient)>=1;
+
+14)SELECT count(DISTINCT patient) AS "No. of patients got appointment for room C"
+FROM appointment
+WHERE examinationroom='C';
+
+15)SELECT p.name AS "Patient",
+       a.examinationroom AS "Room No.",
+       a.start_dt_time AS "Date and Time of appointment"
+FROM patient p
+JOIN appointment a ON p.ssn=a.patient;
+
+16)SELECT n.name AS "Name of the Nurse",
+       a.examinationroom AS "Room No."
+FROM nurse n
+JOIN appointment a ON a.prepnurse=n.employeeid;
+
+17)SELECT t.name AS "Name of the patient",
+       n.name AS "Name of the Nurse assisting the physician",
+       p.name AS "Name of the physician",
+       a.examinationroom AS "Room No.",
+       a.start_dt_time
+FROM patient t
+JOIN appointment a ON a.patient=t.ssn
+JOIN nurse n ON a.prepnurse=n.employeeid
+JOIN physician p ON a.physician=p.employeeid
+WHERE start_dt_time='2008-04-25 10:00:00';
+
+18)SELECT t.name AS "Name of the patient",
+       p.name AS "Name of the physician",
+       a.examinationroom AS "Room No."
+FROM patient t
+JOIN appointment a ON a.patient=t.ssn
+JOIN physician p ON a.physician=p.employeeid
+WHERE a.prepnurse IS NULL;
+
+
+19)SELECT t.name AS "Patient",
+       p.name AS "Physician",
+       m.name AS "Medication"
+FROM patient t
+JOIN prescribes s ON s.patient=t.ssn
+JOIN physician p ON s.physician=p.employeeid
+JOIN medication m ON s.medication=m.code;
+
+20)SELECT t.name AS "Patient",
+       p.name AS "Physician",
+       m.name AS "Medication"
+FROM patient t
+JOIN prescribes s ON s.patient=t.ssn
+JOIN physician p ON s.physician=p.employeeid
+JOIN medication m ON s.medication=m.code
+WHERE s.appointment IS NOT NULL;
+
+21)SELECT t.name AS "Patient",
+       p.name AS "Physician",
+       m.name AS "Medication"
+FROM patient t
+JOIN prescribes s ON s.patient=t.ssn
+JOIN physician p ON s.physician=p.employeeid
+JOIN medication m ON s.medication=m.code
+WHERE s.appointment IS NULL;
+
+
+22)SELECT blockcode AS "Block",
+       count(*) "Number of available rooms"
+FROM room
+WHERE unavailable='false'
+GROUP BY blockcode
+ORDER BY blockcode;
+
+
+23)SELECT blockfloor AS "Floor",
+       count(*) "Number of available rooms"
+FROM room
+WHERE unavailable='false'
+GROUP BY blockfloor
+ORDER BY blockfloor;
+
+24)SELECT blockfloor AS "Floor",
+       blockcode AS "Block",
+       count(*) "Number of available rooms"
+FROM room
+WHERE unavailable='false'
+GROUP BY blockfloor,
+        blockcode
+ORDER BY blockfloor,
+        blockcode;
+
+25)SELECT blockfloor AS "Floor",
+blockcode AS "Block",
+count(*) "Number of unavailable rooms"
+FROM room
+WHERE unavailable='true'
+GROUP BY blockfloor,
+blockcode
+ORDER BY blockfloor,
+blockcode;
+
+26)SELECT blockfloor as "Floor",
+count(*) AS  "Number of available rooms"
+FROM room
+WHERE unavailable='false'
+GROUP BY blockfloor
+HAVING count(*) =
+  (SELECT max(zz) AS highest_total
+   FROM
+( SELECTblockfloor ,
+count(*) AS zz
+      FROM room
+      WHERE unavailable='false'
+      GROUP BY blockfloor ) AS t );
+
+
+27)SELECT blockfloor as "Floor",
+       count(*) AS  "No of available rooms"
+FROM room
+WHERE unavailable='false'
+GROUP BY blockfloor
+HAVING count(*) =
+  (SELECT min(zz) AS highest_total
+   FROM
+     ( SELECT blockfloor ,
+              count(*) AS zz
+      FROM room
+      WHERE unavailable='false'
+      GROUP BY blockfloor ) AS t );
+
+28)SELECT p.name AS "Patient",
+       s.room AS "Room",
+       r.blockfloor AS "Floor",
+       r.blockcode AS "Block"
+FROM stay s
+JOIN patient p ON s.patient=p.ssn
+JOIN room r ON s.room=r.roomnumber;
+
+29)SELECT n.name AS "Nurse",
+       o.blockcode AS "Block"
+FROM nurse n
+JOIN on_call o ON o.nurse=n.employeeid;
+
+30)SELECT p.name AS "Patient",
+       y.name AS "Physician",
+       n.name AS "Nurse",
+       s.end_time AS "Date of release",
+       pr.name as "Treatement going on",
+       r.roomnumber AS "Room",
+       r.blockfloor AS "Floor",
+       r.blockcode AS "Block"
+FROM undergoes u
+JOIN patient p ON u.patient=p.ssn
+JOIN physician y ON u.physician=y.employeeid
+LEFT JOIN nurse n ON u.assistingnurse=n.employeeid
+JOIN stay s ON u.patient=s.patient
+JOIN room r ON s.room=r.roomnumber
+JOIN procedure pr on u.procedure=pr.code;
+
+31)SELECT name AS "Physician"
+FROM physician
+WHERE employeeid IN
+    ( SELECT undergoes.physician
+     FROM undergoes
+     LEFT JOIN trained_In ON undergoes.physician=trained_in.physician
+     AND undergoes.procedure=trained_in.treatment
+     WHERE treatment IS NULL );
+
+32)SELECT p.name AS "Physician",
+       pr.name AS "Procedure",
+       u.date,
+       pt.name AS "Patient"
+FROM physician p,
+     undergoes u,
+     patient pt,
+     PROCEDURE pr
+WHERE u.patient = pt.SSN
+  AND u.procedure = pr.Code
+  AND u.physician = p.EmployeeID
+  AND NOT EXISTS
+    ( SELECT *
+     FROM trained_in t
+     WHERE t.treatment = u.procedure
+       AND t.physician = u.physician );
+
+
+33)SELECT p.name AS "Physician",
+       pr.name AS "Procedure",
+       u.date,
+       pt.name AS "Patient"
+FROM physician p,
+     undergoes u,
+     patient pt,
+     PROCEDURE pr
+WHERE u.patient = pt.SSN
+  AND u.procedure = pr.Code
+  AND u.physician = p.EmployeeID
+  AND NOT EXISTS
+    ( SELECT *
+     FROM trained_in t
+     WHERE t.treatment = u.procedure
+       AND t.physician = u.physician );
+
+
+34)SELECT p.name AS "Physician",
+       p.position AS "Position",
+       pr.name AS "Procedure",
+       u.date AS "Date of Procedure",
+       pt.name AS "Patient",
+       t.certificationexpires AS "Expiry Date of Certificate"
+FROM physician p,
+     undergoes u,
+     patient pt,
+     PROCEDURE pr,
+               trained_in t
+WHERE u.patient = pt.ssn
+  AND u.procedure = pr.code
+  AND u.physician = p.employeeid
+  AND Pr.code = t.treatment
+  AND P.employeeid = t.physician
+  AND u.Date > t.certificationexpires;
+
+35)SELECT n.name
+FROM nurse n
+WHERE employeeid IN
+    ( SELECT oc.nurse
+     FROM on_call oc,
+          room r
+     WHERE oc.blockfloor = r.blockfloor
+       AND oc.blockcode = r.blockcode
+       AND r.roomnumber = 122 );
