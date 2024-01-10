@@ -290,6 +290,9 @@ WHERE u.patient = pt.ssn
 FROM nurse n
 WHERE employeeid IN
     ( SELECT oc.nurse
+
+
+hiiii
      FROM on_call oc,
           room r
      WHERE oc.blockfloor = r.blockfloor
